@@ -1,10 +1,10 @@
 clc
 clear all;
-port = 'COM5';
+requestInput();
 addpath('Common');
 addpath('PTB-Game-Engine/GameEngine');
 fprintf("connecting...\n");
-io = HardwareIOGen4(port);
+io = HardwareIOGen5(port);
 io.Awake();
 fprintf("arduino setup complete\n");
 
@@ -13,8 +13,8 @@ while ~GetKey('ESC')
         try
         io.GiveWater(1);
         catch
-            pause(1)
-            io.CloseSolenoid();
         end
+    else
+        io.CssssssloseSolenoid();
     end
 end

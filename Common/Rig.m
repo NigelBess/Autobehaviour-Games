@@ -47,7 +47,14 @@ classdef Rig < IODevice
             obj.PositionServos(obj.leftServoClosedPos,obj.rightServoClosedPos);
             obj.DelayedCall('ResetEnc',obj.servoAdjustmentTime);
         end
+        function PrintServoTargets(obj)
+            disp(obj.leftServoOpenPos);
+            disp(obj.leftServoClosedPos);
+            disp(obj.rightServoOpenPos); 
+            disp(obj.rightServoClosedPos);
+        end
         function obj = OpenServos(obj)
+            
              obj.PositionServos(obj.leftServoOpenPos,obj.rightServoOpenPos);
         end
         function obj = OpenSide(obj,side)
