@@ -47,7 +47,7 @@ classdef Emailer < handle
             choice = menu("Email error notification has not yes been set up or the username/password is incorrect. Would you like reset the sender email address/password?","Yes","No, continue without emailing errors.");
             if choice == 1
                obj.InputSender();
-               obj.Save(obj.senderFileName,{obj.sender,Obfuscate(obj.password)});
+               obj.Save(obj.senderFileName,{obj.sender,obj.password});
                obj.EditRecipients();
                obj.Auth();
             end
@@ -65,7 +65,7 @@ classdef Emailer < handle
         end
         function obj = InputSender(obj)
             obj.SetSender(input('\nEmail address to send error messages: ','s'));
-            obj.SetPassword(input('\nPassword of sender email. WARNING THIS WILL BE STORED LOCALLY AS PLAINTEXT: ','s'));
+            obj.SetPassword(Obfuscate(input('\nPassword of sender email. WARNING THIS WILL BE STORED LOCALLY AS PLAINTEXT: ','s')));
         end
         function obj = EditRecipients(obj)
              if ~isempty(obj.recipientList)
