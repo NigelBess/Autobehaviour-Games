@@ -50,7 +50,6 @@ classdef  Gen5Rig < IODevice
              
             reading = obj.arduino.getEncoderCount(obj.encoderPinA);
             out = reading/obj.maxJoystickValue;
-            disp("encoder count: " + reading );
             if abs(out) >obj.maxJoystickValue
                 out = 1;
             end
@@ -88,7 +87,6 @@ classdef  Gen5Rig < IODevice
         function obj = ResetEncoder(obj)
             obj.arduino.resetEncoder(obj.encoderPinA);
             obj.encoderOffset = 0;
-            disp('encoder reset to 0');
         end
         function obj = OpenServos(obj)
              obj.PositionServos(obj.leftServoOpenPos,obj.rightServoOpenPos);
