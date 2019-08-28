@@ -1,0 +1,3 @@
+instrreset;
+clear all;
+clc;

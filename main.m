@@ -1,16 +1,14 @@
-
-%clear workspace
-clc; 
-clear all;
-
 addpath('PTB-Game-Engine/GameEngine');     %game engine
 addpath('Common');                         %files used by all the games (main, lickspout only, and joystick only)
 addpath('Main Game');                      %files used by this game
 addpath('Img');                            %image files
 
+%clear workspace and close com ports
+clearAll;
+
 requestInput;%get rig specific data from user via GUI
 
-developerMode = (mouseID == '0');%this allows devmode to be set independent of rig, and ignored by git requests
+developerMode = (mouseID == '0');%if user sets mouse name to zero, we will run in developer mode (no saving data or emailing errors)
 
 %if we are in developer mode, give user the option to use keyboard as input
 if developerMode
@@ -36,7 +34,7 @@ else
         case 1
             io = HardwareIOGen4(port);
         case 2
-            io = HardwareIOGen5(port);
+            io = Gen5Rig(port);
         case 3
             io = HardwareHeadfixed(port,str2num(rig));
             % headfixed rigs use a triple monitor setup
