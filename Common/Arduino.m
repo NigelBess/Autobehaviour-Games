@@ -109,7 +109,6 @@ classdef Arduino < handle
         function out = getEncoderCount(obj,pin)
             pin = obj.int8(pin);
             reply = obj.sendMessageReliable([9,pin]);
-            disp(reply);
             if reply == obj.errorByte
                 error("No encoder found at pin " + string(pin));
             end
