@@ -123,13 +123,15 @@ classdef MainGameManager < GameObject
             %returns -1 (left) or 1 (right)
                 choice = rand();%used to decide if grated circle starts on the left or right
                 if ~isempty(obj.results)
-                    rightProb = obj.results.getLeftProportionOnInterval(5);
+                    leftBias = obj.results.getLeftProportionOnInterval(5);
                 else
-                    rightProb = 0.5;
+                    leftBias = 0.5;
                 end
-                out = 1;
-                if choice > rightProb
-                    out = -1;
+                
+                if choice < leftBias
+                    out = -1;%start the stimulus on the left (forcing mouse to choose right)
+                else
+                    out = 1;
                 end
         end
         function obj = SetState(obj,running,closeServos)
