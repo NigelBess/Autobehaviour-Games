@@ -13,20 +13,21 @@ classdef  Gen5Rig < IODevice
         
         lickVoltageDelta = 1;%expected change in voltage on lickmeter when mouse licks
         lickNominalVoltage = 5;%expected voltage from the lickmeter
-        servoAdjustmentTime = 0.65;%expected time it takes the servos to move
+        servoAdjustmentTime = 0.75;%expected time it takes the servos to move
         evaporationConstant = .15/3600;%how much water evaporates per time. (unknown units calculated by james)
         maxJoystickValue = 40;%max expected change in joystick reading
-        joystickResponseThreshold = 0.2;%ratio of max at which we return a value. this gives the joystick a deadzone
+        joystickResponseThreshold = 0.1;%ratio of max at which we return a value. this gives the joystick a deadzone
        
         %servo positions in degrees
-        leftServoOpenPos = 90;
-        rightServoOpenPos = 180;
-        leftServoClosedPos = 180;
-        rightServoClosedPos = 90; 
+        leftServoOpenPos = 180;
+        rightServoOpenPos = 90;
+        leftServoClosedPos = 90;
+        rightServoClosedPos = 180; 
     end
     
     properties(Access = protected)
         arduino;
+        encoderOffset = 0;
         lastWaterTime;
     end
     
@@ -46,7 +47,13 @@ classdef  Gen5Rig < IODevice
         end
         
          function out = ReadJoystick(obj)
-            out = obj.arduino.getEncoderCount(obj.encoderPinA)/obj.maxJoystickValue;
+             
+            reading = obj.arduino.getEncoderCount(obj.encoderPinA);
+            out = reading/obj.maxJoystickValue;
+            disp("encoder count: " + reading );
+            if abs(out) >obj.maxJoystickValue
+                out = 1;
+            end
             if abs(out)<obj.joystickResponseThreshold
                 out = 0;
             end 
@@ -80,6 +87,8 @@ classdef  Gen5Rig < IODevice
         end
         function obj = ResetEncoder(obj)
             obj.arduino.resetEncoder(obj.encoderPinA);
+            obj.encoderOffset = 0;
+            disp('encoder reset to 0');
         end
         function obj = OpenServos(obj)
              obj.PositionServos(obj.leftServoOpenPos,obj.rightServoOpenPos);
