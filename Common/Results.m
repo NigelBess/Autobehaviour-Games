@@ -7,7 +7,7 @@ classdef Results < handle
     properties (Constant)
         FRAMES_PER_TRIAL = 1800;
     end
-    properties (Access = private)
+    properties (Access = public)
         filename
         mouseID
         sessionNum
@@ -244,15 +244,15 @@ classdef Results < handle
         
         %get fraction of left responses of a specific interval of trials. Used for bias correction
         function out = getLeftProportionOnInterval(obj,num)
-            last = obj.currentTrial;
-            start = last-num+1;
-            if start<1
-                start = 1;
+            didRespond = obj.responded(1:obj.currentTrial);
+            allResponses = obj.joystickResponses(1:obj.currentTrial);
+            responses = allResponses(logical(didRespond));
+            if numel(responses)==0
+                out = 0.5;
+                return;
             end
-            if last<=start
-                last = start;
-            end
-            interval = obj.joystickResponses(start:last);
+            start = max((numel(responses)-num),1);
+            interval = responses(start:end);
             out = sum(interval==-1)/numel(interval);
         end
         
