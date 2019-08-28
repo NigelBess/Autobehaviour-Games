@@ -16,7 +16,7 @@ classdef  Gen5Rig < IODevice
         servoAdjustmentTime = 0.75;%expected time it takes the servos to move
         evaporationConstant = .15/3600;%how much water evaporates per time. (unknown units calculated by james)
         maxJoystickValue = 40;%max expected change in joystick reading
-        joystickResponseThreshold = 0.1;%ratio of max at which we return a value. this gives the joystick a deadzone
+        joystickResponseThreshold = 0.22;%ratio of max at which we return a value. this gives the joystick a deadzone
        
         %servo positions in degrees
         leftServoOpenPos = 180;
