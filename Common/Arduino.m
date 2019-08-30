@@ -36,64 +36,40 @@ classdef Arduino < handle
            pin = obj.int8(pin);
            type = obj.int8(type);
             reply = obj.sendMessageReliable([0,pin,type]);
-            if reply == obj.errorByte
-                error(obj.multiError("Pin setup", obj.pinError(pin), obj.typeError(type,"pin type")),0);
-            end
         end
         
         function digitalWrite(obj,pin,state)
             pin = obj.int8(pin);
             state = obj.int8(state);
-            reply = obj.sendMessageReliable([1,pin,state]);
-            if reply == obj.errorByte
-                error(obj.multiError("Writing digital pin",obj.pinError(pin),obj.typeError(state,"digital pin state")),0)
-            end
+            obj.sendMessageReliable([1,pin,state]);
         end
         function analogWrite(obj,pin,state)
             pin = obj.int8(pin);
             state = obj.int8(state);
-            reply = obj.sendMessageReliable([2,pin,state]);
-            if reply == obj.errorByte
-                error(obj.multiError("Writing analog pin",obj.pinError(pin),obj.typeError(state,"value between 0 and 252")),0);
-            end
+            obj.sendMessageReliable([2,pin,state]);
         end
         function out = digitalRead(obj,pin)
             pin = obj.int8(pin);
             reply = obj.sendMessageReliable([3,pin]);
-            if reply == obj.errorByte
-                error(obj.multiError("Reading digital pin",obj.pinError(pin)),0);
-            end
             out = logical(reply);
         end
         function out = analogRead(obj,pin)
             pin = obj.int8(pin);
             reply = obj.sendMessageReliable([4,pin]);
-            if reply == obj.errorByte
-                error(obj.multiError("Reading digital pin",obj.pinError(pin)),0);
-            end
             out = obj.parseInt(reply)*obj.maxAnalogRead/1023;
         end
         function attachServo(obj,pin)
             pin = obj.int8(pin);
             reply = obj.sendMessageReliable([5,pin]);
-            if reply == obj.errorByte
-                error(obj.multiError("Attaching servo",obj.pinError(pin)),0);
-            end
         end
         function writeServo(obj,pin,angle)
             pin = obj.int8(pin);
             angle = obj.int8(angle);
-            reply = obj.sendMessageReliable([6,pin,angle]);
-            if reply == obj.errorByte
-                error(obj.multiError("Writing position to servo",obj.pinError(pin),obj.typeError(angle,"angle between 0 and 180 degrees")),0);
-            end
+            obj.sendMessageReliable([6,pin,angle]);
         end
         function detachServo(obj,pin)
             pin = obj.int8(pin);
-            reply = obj.sendMessageReliable([7,pin]);
-            if reply == obj.errorByte
-                error("No servo found at pin " + string(pin));
-            end
+            obj.sendMessageReliable([7,pin]);
         end
         function encoder(obj,interruptPin,secondaryPin)
             if nargin<3
@@ -101,40 +77,26 @@ classdef Arduino < handle
             end
             interruptPin = obj.int8(interruptPin);
             secondaryPin = obj.int8(secondaryPin);
-            reply = obj.sendMessageReliable([8,interruptPin,secondaryPin]);
-            if reply == obj.errorByte
-                error(obj.multiError("Setting up encoder",obj.pinError(interruptPin))+"\n OR\n Pin " + string(interruptPin) + " is not an interrupt pin on this Arduino.",0);
-            end
+            obj.sendMessageReliable([8,interruptPin,secondaryPin]);
         end
-        function out = getEncoderCount(obj,pin)
+        function out = readEncoder(obj,pin)
             pin = obj.int8(pin);
             reply = obj.sendMessageReliable([9,pin]);
-            if reply == obj.errorByte
-                error("No encoder found at pin " + string(pin));
-            end
             out = obj.parseInt(reply);
         end
         function resetEncoder(obj,pin)
             pin = obj.int8(pin);
-            reply = obj.sendMessageReliable([10,pin]);
-            if reply == obj.errorByte
-                error("No encoder found at pin " + string(pin));
-            end
+            obj.sendMessageReliable([10,pin]);
         end
         function detachEncoder(obj,pin)
             pin = obj.int8(pin);
-            reply = obj.sendMessageReliable([11,pin]);
-            if reply == obj.errorByte
-                error("No encoder found at pin " + string(pin));
-            end
+             obj.sendMessageReliable([11,pin]);
+
         end
         function setEncoderDirection(obj,pin,direction)
             pin = obj.int8(pin);
             direction = obj.int8(direction);
-            reply = obj.sendMessageReliable([12,pin,direction]);
-            if reply == obj.errorByte
-                error("No encoder found at pin " + string(pin) + "\nOR\n" + string(direction)+" is invalid. Valid values are 0 (no count) 1 (positive count) and 2 (negative count).");
-            end
+            obj.sendMessageReliable([12,pin,direction]);
         end
         
         
@@ -188,6 +150,9 @@ classdef Arduino < handle
         function out = sendMessageReliable(obj,msg)
             obj.sendMessage(msg);
             out = obj.getMessage();
+            if out(1) == obj.errorByte
+                error(native2unicode(out(2:end)));
+            end
         end
         function out = getMessage(obj,timeOutTime)
             obj.messageBuffer = zeros(1,numel(obj.messageBuffer));
@@ -205,7 +170,7 @@ classdef Arduino < handle
                 end
                 newByte = fread(obj.comPort,1);
                 if newByte == obj.terminator
-                    out = obj.messageBuffer(1:index-1);
+                    out = obj.messageBuffer(1:index);
                     return;
                 end
                 obj.messageBuffer(index) = newByte;
