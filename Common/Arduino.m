@@ -170,7 +170,7 @@ classdef Arduino < handle
                 end
                 newByte = fread(obj.comPort,1);
                 if newByte == obj.terminator
-                    out = obj.messageBuffer(1:index);
+                    out = obj.messageBuffer(1:index-1);
                     return;
                 end
                 obj.messageBuffer(index) = newByte;

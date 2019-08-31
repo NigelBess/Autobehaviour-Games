@@ -165,7 +165,6 @@ classdef MainGameManager < GameObject
         end
         function obj = TimeOut(obj)
             obj.EndTrial();
-            disp(isempty(obj.results))
             if ~obj.ioDevice.ReadIR() && ~isempty(obj.results)
                 obj.results.cancelTrial();
             else
