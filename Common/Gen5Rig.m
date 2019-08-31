@@ -48,14 +48,20 @@ classdef  Gen5Rig < IODevice
         
          function out = ReadJoystick(obj)
              
-            reading = obj.arduino.getEncoderCount(obj.encoderPinA);
+            reading = obj.arduino.readEncoder(obj.encoderPinA);
+            if abs(reading - obj.encoderOffset)>obj.maxJoystickValue
+                obj.encoderOffset = obj.maxJoystickValue*sign(reading) - reading;
+            end
+            reading = reading - obj.encoderOffset;
             out = reading/obj.maxJoystickValue;
             if abs(out) >obj.maxJoystickValue
                 out = 1;
             end
+            
             if abs(out)<obj.joystickResponseThreshold
                 out = 0;
             end 
+            out = out - (sign(out)*obj.joystickResponseThreshold);
          end
          
         function out = ReadIR(obj)         
@@ -127,6 +133,14 @@ classdef  Gen5Rig < IODevice
                     obj.arduino.pinMode(pin,type);
                 end
             end
+        end
+        function obj = OnQuit(obj)
+            obj.TurnOffEverything();
+            obj.arduino.clearPort();
+        end
+        function obj = OnError(obj)
+            obj.TurnOffEverything();
+            obj.arduino.clearPort();
         end
 
     end

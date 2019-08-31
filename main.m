@@ -20,7 +20,7 @@ end
 
 %what percent of the screen do we want to render to?
 %[min x, min y, max x, max y] 0 and 1 are the edges of the screen
-% this is used for multiple monitor setups like in the headfixiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiied rigs
+% this is used for multiple monitor setups like in the headfixiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiled rigs
 rect = [0,0,1,1];
 
 
