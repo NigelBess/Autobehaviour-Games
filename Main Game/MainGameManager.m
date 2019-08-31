@@ -124,7 +124,6 @@ classdef MainGameManager < GameObject
                 choice = rand();%used to decide if grated circle starts on the left or right
                 if ~isempty(obj.results)
                     leftBias = obj.results.getLeftProportionOnInterval(5);
-                    disp(leftBias);
                     if isnan(leftBias)
                         leftBias = 0.5;
                     end
@@ -166,7 +165,6 @@ classdef MainGameManager < GameObject
         end
         function obj = TimeOut(obj)
             obj.EndTrial();
-            disp(obj.ioDevice.ReadIR());
             disp(isempty(obj.results))
             if ~obj.ioDevice.ReadIR() && ~isempty(obj.results)
                 obj.results.cancelTrial();

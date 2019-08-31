@@ -15,8 +15,8 @@ classdef  Gen5Rig < IODevice
         lickNominalVoltage = 5;%expected voltage from the lickmeter
         servoAdjustmentTime = 0.75;%expected time it takes the servos to move
         evaporationConstant = .15/3600;%how much water evaporates per time. (unknown units calculated by james)
-        maxJoystickValue = 40;%max expected change in joystick reading
-        joystickResponseThreshold = 0.22;%ratio of max at which we return a value. this gives the joystick a deadzone
+        maxJoystickValue = 50;%max expected change in joystick reading
+        joystickResponseThreshold = 0.1;%ratio of max at which we return a value. this gives the joystick a deadzone
        
         %servo positions in degrees
         leftServoOpenPos = 180;
@@ -27,7 +27,6 @@ classdef  Gen5Rig < IODevice
     
     properties(Access = protected)
         arduino;
-        encoderOffset = 0;
         lastWaterTime;
     end
     
@@ -47,12 +46,8 @@ classdef  Gen5Rig < IODevice
         end
         
          function out = ReadJoystick(obj)
-             
+            
             reading = obj.arduino.readEncoder(obj.encoderPinA);
-            if abs(reading - obj.encoderOffset)>obj.maxJoystickValue
-                obj.encoderOffset = obj.maxJoystickValue*sign(reading) - reading;
-            end
-            reading = reading - obj.encoderOffset;
             out = reading/obj.maxJoystickValue;
             if abs(out) >obj.maxJoystickValue
                 out = 1;
@@ -62,6 +57,7 @@ classdef  Gen5Rig < IODevice
                 out = 0;
             end 
             out = out - (sign(out)*obj.joystickResponseThreshold);
+            out = out /(1-obj.joystickResponseThreshold);
          end
          
         function out = ReadIR(obj)         
@@ -92,7 +88,6 @@ classdef  Gen5Rig < IODevice
         end
         function obj = ResetEncoder(obj)
             obj.arduino.resetEncoder(obj.encoderPinA);
-            obj.encoderOffset = 0;
         end
         function obj = OpenServos(obj)
              obj.PositionServos(obj.leftServoOpenPos,obj.rightServoOpenPos);
