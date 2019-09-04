@@ -60,12 +60,19 @@ classdef Arduino < handle
         end
         function attachServo(obj,pin)
             pin = obj.int8(pin);
-            reply = obj.sendMessageReliable([5,pin]);
+            obj.sendMessageReliable([5,pin]);
         end
         function writeServo(obj,pin,angle)
+            originalAngle = angle;
             pin = obj.int8(pin);
             angle = obj.int8(angle);
+            try
             obj.sendMessageReliable([6,pin,angle]);
+            catch e
+                msg = char(getReport(e,'extended','hyperlinks','off'));
+                msg = [msg,'original angle to be sent: ',char(originalAngle)];
+                error(msg);
+            end
         end
         function detachServo(obj,pin)
             pin = obj.int8(pin);
@@ -141,11 +148,10 @@ classdef Arduino < handle
             %those
             msg(msg==255) = [];
             try
-                flushoutput(obj.comPort);
+                fwrite(obj.comPort,[msg,obj.terminator]);
             catch
                 error("Arduino is not connected. Run Arduino.connect() to connect.");
             end
-            fwrite(obj.comPort,[msg,obj.terminator]);
         end
         function out = sendMessageReliable(obj,msg)
             obj.sendMessage(msg);
