@@ -63,16 +63,9 @@ classdef Arduino < handle
             obj.sendMessageReliable([5,pin]);
         end
         function writeServo(obj,pin,angle)
-            originalAngle = angle;
             pin = obj.int8(pin);
             angle = obj.int8(angle);
-            try
             obj.sendMessageReliable([6,pin,angle]);
-            catch e
-                msg = char(getReport(e,'extended','hyperlinks','off'));
-                msg = [msg,'original angle to be sent: ',char(originalAngle)];
-                error(msg);
-            end
         end
         function detachServo(obj,pin)
             pin = obj.int8(pin);
@@ -157,6 +150,7 @@ classdef Arduino < handle
             obj.sendMessage(msg);
             out = obj.getMessage();
             if out(1) == obj.errorByte
+                obj.connect();
                 error(native2unicode(out(2:end)));
             end
         end
