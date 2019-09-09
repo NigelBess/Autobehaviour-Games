@@ -147,11 +147,13 @@ classdef Arduino < handle
                 msg = [msg,obj.terminator];
             end
             try
-                fwrite(obj.comPort,msg);
+                for i = 1:numel(msg)
+                    fwrite(obj.comPort,msg(i));
+                    flushoutput(obj.comPort);
+                end
             catch
                 error("Arduino is not connected. Run Arduino.connect() to connect.");
             end
-            flushoutput(obj.comPort);
         end
         function out = sendMessageReliable(obj,msg,useTerminator)
             if nargin<3
