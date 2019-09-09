@@ -35,7 +35,7 @@ classdef Arduino < handle
         function pinMode(obj,pin,type)
            pin = obj.int8(pin);
            type = obj.int8(type);
-            reply = obj.sendMessageReliable([0,pin,type]);
+           obj.sendMessageReliable([0,pin,type]);
         end
         
         function digitalWrite(obj,pin,state)
@@ -112,7 +112,7 @@ classdef Arduino < handle
         end
         function out = checkConnection(obj,firstTime)
             if nargin<2
-                firstTime = false;
+                firstTime = true;
             end
             obj.sendMessage(253);
             if ~firstTime
@@ -126,8 +126,11 @@ classdef Arduino < handle
             obj.sendMessage([253,0]);
             out = obj.getMessageAsText();
         end
-        function sendMessage(obj,msg)
-            %sanitize input
+        function sendMessage(obj,msg,useTerminator)
+            if nargin<3
+                useTerminator = true;
+            end
+             %sanitize input
             for i = 1:numel(msg)
                 msg(i) = floor(msg(i));%only allow integers
                 
@@ -140,15 +143,21 @@ classdef Arduino < handle
             %values of 255 get ignored by the arduino so we will delete
             %those
             msg(msg==255) = [];
+            if useTerminator
+                msg = [msg,obj.terminator];
+            end
             try
-                fwrite(obj.comPort,[msg,obj.terminator]);
+                fwrite(obj.comPort,msg);
             catch
                 error("Arduino is not connected. Run Arduino.connect() to connect.");
             end
             flushoutput(obj.comPort);
         end
-        function out = sendMessageReliable(obj,msg)
-            obj.sendMessage(msg);
+        function out = sendMessageReliable(obj,msg,useTerminator)
+            if nargin<3
+                useTerminator = true;
+            end
+            obj.sendMessage(msg,useTerminator);
             out = obj.getMessage();
             if out(1) == obj.errorByte
                 error(native2unicode(out(2:end)));
