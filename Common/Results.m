@@ -33,12 +33,14 @@ classdef Results < handle
         lastSavedFrame
         saveDir2
         globalStart
+        naturalisticBackground
     end
     
     methods
-        function obj = Results(id, trials, sessionNum,type)
+        function obj = Results(id, trials, sessionNum,type, naturalisticBackground)
             
             %empty buffers for data logging
+            obj.naturalisticBackground = naturalisticBackground;
             obj.startTimes = zeros(1,trials);
             obj.stimSequence = zeros(1,trials);
             obj.lastSavedFrame = 0;
@@ -96,7 +98,7 @@ classdef Results < handle
             obj.frames = zeros(obj.FRAMES_PER_TRIAL,3);
             obj.currentFrame = 0;
         end
-        function [] = setContrastOptions(obj,renderer)
+        function [] = setContrastOptions(obj,renderer)  % ???
             obj.contrastOptions = renderer.CONTRAST_OPTIONS;
         end
         function [] = cancelTrial(obj)

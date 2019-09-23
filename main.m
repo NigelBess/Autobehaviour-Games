@@ -6,11 +6,12 @@ addpath('Img');                            %image files
 %clear workspace and close com ports
 clearAll;
 
+contrastList = [2.^(0:6), 100] / 100; % Specify the pool of contrasts for the circle
 requestInput;%get rig specific data from user via GUI
 
 developerMode = (mouseID == '0');%if user sets mouse name to zero, we will run in developer mode (no saving data or emailing errors)
 
-%if we are in developer mode, give user the option to use keyboard as input
+%if we are iiin developer mode, give user the option to use keyboard as iniput
 if developerMode
 choice = menu('Keyboard or Autobehavior Rig input?','Keyboard','Rig');
 usingKeyboard = choice==1;
@@ -20,10 +21,8 @@ end
 
 %what percent of the screen do we want to render to?
 %[min x, min y, max x, max y] 0 and 1 are the edges of the screen
-% this is used for multiple monitor setups like in the headfixiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiled rigs
+% this is used for multiple monitor setups like in the headfixed rigs
 rect = [0,0,1,1];
-
-
 
 secondarySaveDir = 'C:/Autobehavior Data/';
 if usingKeyboard
@@ -36,8 +35,8 @@ else
         case 2
             io = Gen5Rig(port);
         case 3
-            io = HardwareHeadfixed(port,str2num(rig));
-            % headfixed rigs use a triple monitor setup
+            io = HardwareHeadfixed(port, str2num(rig));
+            % headfixed rigs use a triple monitor  setup
             % we can choose to render to only the middle monitor by setting
             % the rect to the middle third of the screen
             rect = [1/3,0,2/3,1];
@@ -45,25 +44,35 @@ else
 end
 
 %initialize objects
-emailer = Emailer('sender','recipients',developerMode);%doesn't send mail if we are in dev mode
-results = Results(mouseID,numTrials,sessionNum,'closedLoopTraining');
+emailer = Emailer('sender','recipients',developerMode); %doesn't send mail if we are in dev mode
+results = Results(mouseID,numTrials,sessionNum,'closedLoopTraining',natBackground);
 results.setSaveDirectory(saveDir, secondarySaveDir);
 renderer = Renderer(screenNum,0.5,rect);%(screenNumber,default background color,rect to render to)
-grating = GratedCircle;
+grating = GratedCircle(contrastList); % You can provide a pool of possible opacities for the grated circle
 greenCirc = TargetRing;
-%background = RandomizedBackground('backgroundDot.png',40,[2,1]);%(image, quantity, [x range, y range])
-%background.SetParent(grating);%make background the child of grating so that the move in unison
+if natBackground
+    background = NaturalBackground('NaturalScene_stacked.png');
+    %background_inverted = NaturalBackground('backgroundForest.png', [2, 1]);
+    %background = RandomizedBackground('backgroundDot.png',40,[2,1]);%(image, quantity, [x range, y range])
+    background.SetParent(grating);%make background the child of grating so that the move in unison
+    background.RenderAfter(grating);%make background render  last
+end
 grating.RenderAfter(greenCirc);%make grating render behind green circle
-%background.RenderAfter(grating);%make background render  last
 iescape = EscapeQuit;%object that makes game quit if you press the escape key
 sound = SoundMaker;
 
 
-controller = GratedCircleController(grating,io);
+controller = GratedCircleController(grating, io);
 
 %manager handles game logic. Constructor params are references to objects
 %that it interacts with
-manager = MainGameManager(grating,greenCirc,[],controller,io,sound,results);
+
+if natBackground
+    manager = MainGameManager(grating,greenCirc,background,controller,io,sound,results);
+else
+    manager = MainGameManager(grating,greenCirc,[],controller,io,sound,results);
+end
+
 manager.SetMaxTrials(numTrials);
 manager.SetAllowIncorrect(reward);
 

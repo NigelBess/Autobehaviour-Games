@@ -99,7 +99,7 @@ classdef MainGameManager < GameObject
             obj.hasHit = false;
             obj.gratedCircle.Reset(side);
             if ~isempty(obj.results)
-                obj.results.StartTrial(side,1,obj.Game.GetTime());
+                obj.results.StartTrial(side, obj.gratedCircle.GetAlpha(), obj.Game.GetTime());
             end
             obj.currentTrialNum = obj.currentTrialNum +1;
             obj.DelayedCall('TimeOut',obj.timeOutTime);
@@ -150,7 +150,7 @@ classdef MainGameManager < GameObject
                 end
                 obj.controller.enabled = false;
                 if ~isempty(obj.background)
-                    obj.background.RandomizePositions();
+                   obj.background.RandomizePositions();
                 end
             end
             obj.targetCircle.enabled = running;
