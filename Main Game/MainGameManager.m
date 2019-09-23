@@ -62,6 +62,7 @@ classdef MainGameManager < GameObject
             end
         end
         function obj = Success(obj)
+            obj.StopAllDelayedCalls();
             obj.controller.enabled = false;
             obj.soundMaker.RewardNoise();
             obj.gratedCircle.SetRootPosition(obj.targetCircle.GetGlobalPosition());
